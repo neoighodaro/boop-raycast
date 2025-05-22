@@ -1,7 +1,6 @@
 interface BoopState {
   text: string;
   intent: BoopIntents;
-  postInfo: string;
 }
 
 interface ActionsProps {
@@ -11,4 +10,4 @@ interface ActionsProps {
   onSuccess?: (state: BoopState) => void;
 }
 
-type BoopIntents = "base64Encode" | "trimWhitespaces";
+type BoopIntents = "jsonMinify" | "jsonPrettyPrint" | "loremIpsum" | "base64Decode" | "base64Encode" | "camelCase" | "generatePassword" | "htmlDecode" | "htmlEncode" | "kebabCase" | "lowercase" | "md5Hash" | "pascalCase" | "removeDuplicates" | "reverseText" | "sha256Hash" | "snakeCase" | "titleCase" | "trimWhitespaces" | "uppercase" | "urlDecode" | "urlEncode";

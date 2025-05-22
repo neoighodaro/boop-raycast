@@ -28,6 +28,7 @@ function parseJSDoc(content) {
   let id = "";
   let author = "";
   let icon = "";
+  let bias = null;
 
   let currentSection = "title";
 
@@ -40,6 +41,15 @@ function parseJSDoc(content) {
       currentSection = "none";
     } else if (line.startsWith("@icon")) {
       icon = line.replace("@icon", "").trim();
+      currentSection = "none";
+    } else if (line.startsWith("@bias")) {
+      const biasValue = line.replace("@bias", "").trim();
+      const parsedBias = parseInt(biasValue, 10);
+      if (!isNaN(parsedBias) && parsedBias >= 0 && parsedBias <= 99) {
+        bias = parsedBias;
+      } else {
+        console.warn(`⚠️  Invalid bias value "${biasValue}" - must be a number between 0 and 99`);
+      }
       currentSection = "none";
     } else if (line.startsWith("@")) {
       currentSection = "none";
@@ -56,7 +66,7 @@ function parseJSDoc(content) {
     }
   }
 
-  return { title, description, id, author, icon };
+  return { title, description, id, author, icon, bias };
 }
 
 /**
@@ -97,6 +107,25 @@ function validateScript(filePath, content, metadata) {
  */
 function filenameToCamelCase(filename) {
   return filename.replace(/\.ts$/, "").replace(/-([a-z])/g, (_, letter) => letter.toUpperCase());
+}
+
+/**
+ * Sort scripts by bias (higher first) then alphabetically by title
+ */
+function sortScripts(scripts) {
+  return scripts.sort((a, b) => {
+    // First sort by bias (higher bias comes first)
+    // Scripts without bias are treated as having bias 0
+    const biasA = a.bias !== null ? a.bias : 0;
+    const biasB = b.bias !== null ? b.bias : 0;
+
+    if (biasA !== biasB) {
+      return biasB - biasA; // Higher bias first
+    }
+
+    // If bias is the same (or both null), sort alphabetically by title
+    return a.title.localeCompare(b.title);
+  });
 }
 
 /**
@@ -148,11 +177,13 @@ function processScripts() {
       description: metadata.description,
       author: metadata.author,
       icon: metadata.icon,
+      bias: metadata.bias,
       moduleName,
       fileName: file,
     });
 
-    console.log(`✅ ${file} -> ${scriptId} (${metadata.title})`);
+    const biasInfo = metadata.bias !== null ? ` (bias: ${metadata.bias})` : "";
+    console.log(`✅ ${file} -> ${scriptId} (${metadata.title})${biasInfo}`);
   }
 
   if (hasErrors) {
@@ -160,7 +191,38 @@ function processScripts() {
     process.exit(1);
   }
 
-  return scripts;
+  // Sort scripts by bias and then alphabetically
+  const sortedScripts = sortScripts(scripts);
+
+  console.log("\n📊 Final script order:");
+  sortedScripts.forEach((script, index) => {
+    const biasInfo = script.bias !== null ? ` (bias: ${script.bias})` : "";
+    console.log(`  ${index + 1}. ${script.title}${biasInfo}`);
+  });
+
+  return sortedScripts;
+}
+
+/**
+ * Convert icon string to proper Raycast Icon reference
+ */
+function formatIcon(iconString) {
+  if (!iconString) {
+    return "Icon.Gear"; // Default icon
+  }
+
+  // If it's already an Icon reference, return as-is
+  if (iconString.startsWith("Icon.")) {
+    return iconString;
+  }
+
+  // Convert kebab-case or snake_case to PascalCase
+  const pascalCase = iconString
+    .split(/[-_]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join("");
+
+  return `Icon.${pascalCase}`;
 }
 
 /**
@@ -178,8 +240,10 @@ function generateActionsFile(scripts) {
 
   const actions = scripts
     .map((script) => {
+      const iconRef = formatIcon(script.icon);
       return `      <Action.SubmitForm
         title="${script.title}"
+        icon={${iconRef}}
         onSubmit={(state) => onSubmit({ ...state, intent: "${script.id}" } as BoopState)}
       />`;
     })
@@ -277,9 +341,10 @@ function main() {
     updateTypesFile(scripts);
 
     console.log(`\n🎉 Successfully synchronized ${scripts.length} script(s)!`);
-    console.log("\nAvailable scripts:");
+    console.log("\nAvailable scripts (in action order):");
     for (const script of scripts) {
-      console.log(`  • ${script.title} (${script.id})`);
+      const biasInfo = script.bias !== null ? ` (bias: ${script.bias})` : "";
+      console.log(`  • ${script.title} (${script.id})${biasInfo}`);
     }
   } catch (error) {
     console.error("\n❌ Error during synchronization:", error.message);
@@ -292,4 +357,4 @@ if (require.main === module) {
   main();
 }
 
-module.exports = { main, processScripts, parseJSDoc };
+module.exports = { main, processScripts, parseJSDoc, sortScripts };

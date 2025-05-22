@@ -5,7 +5,7 @@
  *
  * @id base64Encode
  * @author neoish
- * @icon lock
+ * @icon Icon.Lock
  */
 export default function (state: BoopState) {
   state.text = Buffer.from(state.text, "utf-8").toString("base64");

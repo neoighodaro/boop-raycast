@@ -5,7 +5,7 @@
  *
  * @id trimWhitespaces
  * @author neoish
- * @icon scissors
+ * @icon Icon.TextCursor
  */
 export default function (state: BoopState) {
   state.text = state.text.replace(/\s+/g, " ").trim();

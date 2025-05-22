@@ -1,7 +1,7 @@
 import { Form, showToast } from "@raycast/api";
 import Actions from "./components/actions";
 import React from "react";
-import { FormValidation, showFailureToast, useForm } from "@raycast/utils";
+import { showFailureToast, useForm } from "@raycast/utils";
 
 export default function Command() {
   const [isLoading, setIsLoading] = React.useState(false);
@@ -9,17 +9,16 @@ export default function Command() {
   const stopLoading = () => setIsLoading(false);
 
   const { handleSubmit, setValue, itemProps } = useForm<BoopState>({
-    onSubmit: ({ text, intent }) => {
+    onSubmit: ({ text }) => {
       if (isLoading) {
         showFailureToast({ title: "Still processing a pending request" });
         return;
       }
 
       setValue("text", text);
-      showToast({ title: `Completed "${intent}"` });
+      showToast({ title: "🎉 Action Completed" });
     },
     initialValues: { text: "" },
-    validation: { text: FormValidation.Required },
   });
 
   const actions = { handleSubmit, onStart: startLoading, onFailure: stopLoading, onSuccess: stopLoading };
