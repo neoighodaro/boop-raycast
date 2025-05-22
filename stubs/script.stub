@@ -3,6 +3,7 @@
  *
  * {{description}}
  *
+ * @id {{id}}
  * @author {{author}}
  * @icon {{icon}}
  */
