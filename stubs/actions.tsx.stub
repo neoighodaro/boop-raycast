@@ -12,10 +12,7 @@ export default function Actions({ handleSubmit, onStart, onSuccess }: ActionsPro
 
   return (
     <ActionPanel>
-      <Action.SubmitForm
-        title="Trim Whitespaces"
-        onSubmit={(state) => onSubmit({ ...state, intent: "trimWhitespaces" } as BoopState)}
-      />
+      {{actions}}
     </ActionPanel>
   );
 }
