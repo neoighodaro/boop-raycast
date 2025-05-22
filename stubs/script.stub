@@ -1,0 +1,11 @@
+/**
+ * {{name}}
+ *
+ * {{description}}
+ *
+ * @author {{author}}
+ * @icon {{icon}}
+ */
+export default function (state: BoopState) {
+  {{code}}
+}

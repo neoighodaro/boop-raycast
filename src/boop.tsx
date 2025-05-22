@@ -1,24 +1,32 @@
-import { Form, ActionPanel, Action, showToast } from "@raycast/api";
-
-type Values = {
-  textarea: string;
-};
+import { Form, showToast } from "@raycast/api";
+import Actions from "./components/actions";
+import React from "react";
+import { FormValidation, showFailureToast, useForm } from "@raycast/utils";
 
 export default function Command() {
-  function handleSubmit(values: Values) {
-    console.log(values);
-    showToast({ title: "Submitted form", message: "See logs for submitted values" });
-  }
+  const [isLoading, setIsLoading] = React.useState(false);
+  const startLoading = () => setIsLoading(true);
+  const stopLoading = () => setIsLoading(false);
+
+  const { handleSubmit, setValue, itemProps } = useForm<BoopState>({
+    onSubmit: ({ text, intent }) => {
+      if (isLoading) {
+        showFailureToast({ title: "Still processing a pending request" });
+        return;
+      }
+
+      setValue("text", text);
+      showToast({ title: `Completed "${intent}"` });
+    },
+    initialValues: { text: "" },
+    validation: { text: FormValidation.Required },
+  });
+
+  const actions = { handleSubmit, onStart: startLoading, onFailure: stopLoading, onSuccess: stopLoading };
 
   return (
-    <Form
-      actions={
-        <ActionPanel>
-          <Action.SubmitForm onSubmit={handleSubmit} />
-        </ActionPanel>
-      }
-    >
-      <Form.TextArea id="textarea" title="Text area" placeholder="Enter multi-line text" />
+    <Form actions={<Actions {...actions} />} navigationTitle="Boop" isLoading={isLoading}>
+      <Form.TextArea placeholder="..." {...itemProps.text} />
     </Form>
   );
 }
