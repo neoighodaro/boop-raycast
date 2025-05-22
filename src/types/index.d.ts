@@ -1,6 +1,7 @@
 interface BoopState {
   text: string;
   intent: BoopIntents;
+  postInfo: string;
 }
 
 interface ActionsProps {
