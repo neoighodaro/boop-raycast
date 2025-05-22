@@ -10,4 +10,4 @@ interface ActionsProps {
   onSuccess?: (state: BoopState) => void;
 }
 
-type BoopIntents = "trimWhitespaces";
+type BoopIntents = "base64Encode" | "trimWhitespaces";

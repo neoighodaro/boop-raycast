@@ -12,6 +12,10 @@ export default function Actions({ handleSubmit, onStart, onSuccess }: ActionsPro
 
   return (
     <ActionPanel>
+            <Action.SubmitForm
+        title="Base64 Encode"
+        onSubmit={(state) => onSubmit({ ...state, intent: "base64Encode" } as BoopState)}
+      />
       <Action.SubmitForm
         title="Trim Whitespaces"
         onSubmit={(state) => onSubmit({ ...state, intent: "trimWhitespaces" } as BoopState)}
