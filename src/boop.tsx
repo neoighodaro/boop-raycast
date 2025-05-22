@@ -9,14 +9,14 @@ export default function Command() {
   const stopLoading = () => setIsLoading(false);
 
   const { handleSubmit, setValue, itemProps } = useForm<BoopState>({
-    onSubmit: ({ text, intent, postInfo }) => {
+    onSubmit: ({ text, intent }) => {
       if (isLoading) {
         showFailureToast({ title: "Still processing a pending request" });
         return;
       }
 
       setValue("text", text);
-      showToast({ title: postInfo ? postInfo : `Completed "${intent}"` });
+      showToast({ title: `Completed "${intent}"` });
     },
     initialValues: { text: "" },
     validation: { text: FormValidation.Required },
